@@ -12,9 +12,9 @@ from numpy import random
 
 
 #set dataset path
-dataset_path = "../77_cancer_proteomes_CPTAC_itraq.csv"
-clinical_info = "../clinical_data_breast_cancer.csv"
-pam50_proteins = "../PAM50_proteins.csv"
+dataset_path = "./77_cancer_proteomes_CPTAC_itraq.csv"
+clinical_info = "./clinical_data_breast_cancer.csv"
+pam50_proteins = "./PAM50_proteins.csv"
 
 
 #load data

@@ -33,31 +33,27 @@ data.rename(columns=lambda x: "TCGA-%s" % (re.split('[_|-|.]',x)[0]) if bool(re.
 data = data.transpose()
 clinical = clinical.loc[[x for x in clinical.index.tolist() if x in data.index],:]
 
+#merge 77 samples with clinical data
 data_for_merge = data
 merged = data_for_merge.merge(clinical,left_index=True,right_index=True)
 
 ## Numerical data for the algorithm
-data.loc[:,[x for x in data.columns if bool(re.search("TCGA",x)) == True]]
+#data.loc[:,[x for x in data.columns if bool(re.search("TCGA",x)) == True]]
 
-merged.loc[:,[x for x in data.columns if bool(re.search("TCGA",x)) == True]]
+merged.loc[:,[x for x in data.columns if bool(re.search("NP_|XP_",x)) == True]]
 processed_merged = merged.ix[:,merged.columns.isin(pam50['RefSeqProteinID'])]
 
-## Impute missing values by median of the columns 
-imputer = Imputer(missing_values='NaN', strategy='median', axis=0)
-imputer = imputer.fit(data)
-processed_numerical = imputer.transform(data)
-
-imputertwo = Imputer(missing_values='NaN', strategy='median', axis=0)
-imputertwo = imputertwo.fit(processed_merged)
-processed_merged = imputertwo.transform(processed_merged)
-
+## Impute missing values by median of the rows
+imputer = Imputer(missing_values='NaN', strategy='median', axis=1)
+imputer = imputer.fit(processed_merged)
+processed_merged = imputer.transform(processed_merged)
 
 
 ## start PCA algorithm
 mlab_pca = mlabPCA(processed_merged) 
 
 fracs = mlab_pca.fracs
-#print fracs.shape
+#print fracs
 
 
 
@@ -87,14 +83,14 @@ plt.title('The proportion of variance of each column')
 ## tuning point, choose 0.02, remove low porportion columns
 select = 0
 for f in fracs:
-  if f > 0.01:  
+  if f > 0.02:  
      select += 1
 
 afterPCA_numerical = mlab_pca.Y[0 : 80, 0 : select]
 
 #print afterPCA_numerical.shape
 
-n_clusters = [2,3,4,5,6,7,8,10,20,79]
+n_clusters = [2,3,4,5,6,7,8,10]
 
 def compare_k_means(k_list,data):
     ## Run clustering with different k and check the metrics
